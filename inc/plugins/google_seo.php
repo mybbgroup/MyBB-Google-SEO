@@ -209,7 +209,7 @@ function google_seo_tid($pid, $tid=0, $mode='default', $limit=1)
             $tid = (int)$style['tid'];
         }
 
-        else if(is_array($thread) && $thread['firstpost'] == $pid && $thread['tid'] > 0)
+        else if(isset($thread['firstpost']) && $thread['firstpost'] == $pid && $thread['tid'] > 0)
         {
             $tid = (int)$thread['tid'];
         }
