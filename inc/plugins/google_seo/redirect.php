@@ -288,7 +288,13 @@ function google_seo_redirect_hook()
         {
             // Parse current and target
             $target_parse = explode("?", $target, 2);
+            if (!isset($target_parse[1])) {
+                $target_parse[1] = '';
+            }
             $current_parse = explode("?", $current, 2);
+            if (!isset($current_parse[1])) {
+                $current_parse[1] = '';
+            }
 
             // Location
             $location_target = $target_parse[0];
@@ -324,7 +330,7 @@ function google_seo_redirect_hook()
             $query = $query_current;
 
             // Kill query string elements that already are part of the URL.
-            if (!$query[$target_dynamic])
+            if (empty($query[$target_dynamic]))
             {
                 unset($query[$target_dynamic]);
                 unset($query_current[$target_dynamic]);
