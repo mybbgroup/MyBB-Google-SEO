@@ -93,6 +93,8 @@ function google_seo_redirect_hook()
         return;
     }
 
+    $kill = [];
+
     // Build the target URL we should be at:
     switch (THIS_SCRIPT)
     {
@@ -306,6 +308,8 @@ function google_seo_redirect_hook()
                 '&$1$2',
                 $current_parse[1]
             );
+
+            $change= null;
 
             if ($current_parse[1] != $broken_query)
             {

@@ -73,6 +73,8 @@ function google_seo_sitemap($tag, $items)
 
     $bbsite = $settings['bburl'] . '/';
 
+    $output = [];
+
     if($tag == "sitemap")
     {
         $output[] = '<?xml version="1.0" encoding="UTF-8"?>
@@ -149,6 +151,8 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
     {
         return;
     }
+
+    $perpage = 50; // todo, unnecessary ?
 
     $pagescount = '';
     switch($type)
@@ -321,10 +325,10 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             error($lang->googleseo_sitemap_pageinvalid);
     }
 
+    $items = [];
+
     if(!$page)
     {
-        $items = [];
-
         // Do a pagination index.
         $query = $db->simple_select($table,
                                     "MAX({$datename}) AS lastmod, FLOOR({$idname}/{$pagination}.0)+1 AS page",
@@ -351,6 +355,8 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
     $query = $db->simple_select($table, "{$idname},{$datename}{$pagescount}",
                                 "{$condition} AND {$idname} > {$min} AND {$idname} <= {$max}",
                                 array('order_by' => $idname));
+
+    $ids = $dates = $pages = [];
 
     while($row = $db->fetch_array($query))
     {
@@ -436,6 +442,8 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
 {
     global $settings;
 
+    $items = [];
+
     if($page)
     {
         // Additional pages.
@@ -454,8 +462,6 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
         google_seo_sitemap("url", $items);
         return;
     }
-
-    $items = array();
 
     foreach(array("forums", "threads", "users", "announcements",
                   "calendars", "events") as $type)
