@@ -65,9 +65,9 @@ if(defined("IN_ARCHIVE") && $settings['google_seo_meta_archive'])
 /**
  * Clean up a description and append it to google_seo_meta.
  *
- * @param string The unfiltered description that should be used.
+ * @param string $description The unfiltered description that should be used.
  */
-function google_seo_meta_description($description)
+function google_seo_meta_description(string $description): void
 {
     global $settings, $plugins, $google_seo_meta;
 
@@ -92,9 +92,9 @@ function google_seo_meta_description($description)
 /**
  * Append a canonical link to google_seo_meta.
  *
- * @param string The link that is canonical for this page.
+ * @param string $link The link that is canonical for this page.
  */
-function google_seo_meta_canonical($link)
+function google_seo_meta_canonical(string  $link): void
 {
     global $settings, $plugins, $google_seo_meta;
 
@@ -105,7 +105,7 @@ function google_seo_meta_canonical($link)
 /**
  * Initialize a page variable
  */
-function google_seo_meta_page($page)
+function google_seo_meta_page(int $page): void
 {
     global $settings, $lang;
     global $google_seo_page;
@@ -129,7 +129,7 @@ function google_seo_meta_page($page)
 /**
  * Make a page noindex.
  */
-function google_seo_meta_noindex($fid)
+function google_seo_meta_noindex(int $fid): void
 {
     global $settings, $plugins, $google_seo_meta;
 
@@ -143,7 +143,7 @@ function google_seo_meta_noindex($fid)
 /**
  * Make links in a string nofollow.
  */
-function google_seo_meta_nofollow($text)
+function google_seo_meta_nofollow(?string $text): string
 {
     if(is_string($text))
     {
@@ -167,10 +167,8 @@ function google_seo_meta_nofollow($text)
 
 /**
  * Generate meta tags for a forum.
- *
- * @param int Forum-ID
  */
-function google_seo_meta_forum()
+function google_seo_meta_forum(): void
 {
     global $settings, $foruminfo, $fid, $page;
 
@@ -214,11 +212,11 @@ function google_seo_meta_forum()
 }
 
 /**
- * Generate meta tags for a thread.
+ * Generate meta-tags for a thread.
  *
- * @param post
+ * @param array $post
  */
-function google_seo_meta_thread(&$post)
+function google_seo_meta_thread(array &$post): void
 {
     global $settings, $lang, $plugins, $tid, $page, $thread;
     global $google_seo_page, $google_seo_nofollow;
@@ -270,12 +268,12 @@ function google_seo_meta_thread(&$post)
 /**
  * Nofollow links in posts.
  */
-function google_seo_meta_posts(&$mypost)
+function google_seo_meta_posts(array &$mypost): void
 {
     global $post;
     global $google_seo_nofollow;
 
-    // Archive Post hook doesn't supply us with the post so we have to cheat.
+    // Archive Post hook doesn't supply us with the post, so we have to cheat.
     if(defined("IN_ARCHIVE") && !$mypost && $post)
     {
         $mypost = &$post;
@@ -296,7 +294,7 @@ function google_seo_meta_posts(&$mypost)
 /**
  * Meta for printthread
  */
-function google_seo_meta_printthread()
+function google_seo_meta_printthread(): void
 {
     global $plugins, $postrow, $thread;
     global $google_seo_nofollow;
@@ -313,7 +311,7 @@ function google_seo_meta_printthread()
     }
 }
 
-function google_seo_meta_printthread_post()
+function google_seo_meta_printthread_post(): void
 {
     global $postrow;
     google_seo_meta_posts($postrow);
@@ -322,9 +320,8 @@ function google_seo_meta_printthread_post()
 /**
  * Generate meta tags for a user.
  *
- * @param int User-ID
  */
-function google_seo_meta_user()
+function google_seo_meta_user(): void
 {
     global $settings, $uid, $memprofile, $signature, $website;
     global $google_seo_nofollow;
@@ -344,11 +341,11 @@ function google_seo_meta_user()
 }
 
 /**
- * Generate meta tags for an announcement.
+ * Generate meta-tags for an announcement.
  *
- * @param int Announcement-ID
+ * @param array $post
  */
-function google_seo_meta_announcement($post)
+function google_seo_meta_announcement(array $post): void
 {
     global $settings, $aid;
 
@@ -366,11 +363,10 @@ function google_seo_meta_announcement($post)
 }
 
 /**
- * Generate meta tags for an event.
+ * Generate meta-tags for an event.
  *
- * @param int Event-ID
  */
-function google_seo_meta_event($eid)
+function google_seo_meta_event(): void
 {
     global $settings, $event;
 
@@ -387,9 +383,8 @@ function google_seo_meta_event($eid)
 /**
  * Generate meta tags for a calendar
  *
- * @param int Calendar-ID
  */
-function google_seo_meta_calendar()
+function google_seo_meta_calendar(): void
 {
     global $settings, $calendar;
 
@@ -409,7 +404,7 @@ function google_seo_meta_calendar()
  * Build description and canonical for the archive pages.
  *
  */
-function google_seo_meta_archive()
+function google_seo_meta_archive(): void
 {
     global $plugins, $action;
 
@@ -443,7 +438,7 @@ function google_seo_meta_archive()
  * This hack is necessary because MyBB's Lite (Archive) Mode is hard coded.
  * Thanks to Michael S. for this idea.
  */
-function google_seo_meta_archive_start()
+function google_seo_meta_archive_start(): void
 {
     ob_start('google_seo_meta_output');
 }
@@ -451,7 +446,7 @@ function google_seo_meta_archive_start()
 /**
  * Add the tags to the output.
  */
-function google_seo_meta_output($string)
+function google_seo_meta_output(string $string): string
 {
     global $google_seo_meta;
 

@@ -39,9 +39,9 @@ $plugins->add_hook("build_friendly_wol_location_end", "google_seo_sitemap_wol");
  * Get a list of calendar IDs the user is not allowed to view.
  *
  */
-function google_seo_get_unviewable_calendars()
+function google_seo_get_unviewable_calendars(): string
 {
-    // Calendar specific permission check.
+    // Calendar-specific permission check.
     require_once MYBB_ROOT."inc/functions_calendar.php";
 
     $calendars = get_calendar_permissions();
@@ -64,10 +64,10 @@ function google_seo_get_unviewable_calendars()
 /**
  * Build and output a sitemap.
  *
- * @param string Tag which determines the type of the sitemap
- * @param array List of items to be included in this sitemap
+ * @param string $tag Tag which determines the type of the sitemap
+ * @param array $items List of items to be included in this sitemap
  */
-function google_seo_sitemap($tag, $items)
+function google_seo_sitemap(string $tag, array $items): void
 {
     global $settings;
 
@@ -136,20 +136,20 @@ function google_seo_sitemap($tag, $items)
  * Generate the list of items for a sitemap.
  * This will be handed to google_seo_sitemap() to produce the XML output.
  *
- * @param string XML Sitemap URL scheme
- * @param string type of items to list in sitemap
- * @param int page number
- * @param int number of items per page
- * @return array List of items (in case of main index)
+ * @param string $scheme XML Sitemap URL scheme
+ * @param string $type type of items to list in sitemap
+ * @param int $page page number
+ * @param int $pagination number of items per page
+ * @return array List of items (in the case of the main index)
  */
-function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
+function google_seo_sitemap_gen(string $scheme, string $type, int $page, int $pagination): array
 {
     global $lang, $db, $mybb, $settings;
     global $google_seo_url_optimize;
 
     if(!$settings["google_seo_sitemap_{$type}"])
     {
-        return;
+        return [];
     }
 
     $perpage = 50; // todo, unnecessary ?
@@ -238,7 +238,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
         case "users":
             if(!$mybb->usergroup['canviewprofiles'])
             {
-                return;
+                return [];
             }
 
             $table = 'users';
@@ -276,7 +276,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             if($mybb->settings['enablecalendar'] == 0
                || $mybb->usergroup['canviewcalendar'] == 0)
             {
-                return;
+                return [];
             }
 
             $table = 'calendars';
@@ -300,7 +300,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             if($mybb->settings['enablecalendar'] == 0
                || $mybb->usergroup['canviewcalendar'] == 0)
             {
-                return;
+                return [];
             }
 
             $table = 'events';
@@ -335,7 +335,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
                                     "{$condition} GROUP BY page");
 
         $url = google_seo_expand($scheme, array('url' => $type));
-        $url .= (strpos($url, '?') === false ? '?' : '&amp;').'page=';
+        $url .= (!str_contains($url, '?') ? '?' : '&amp;').'page=';
 
         while($row = $db->fetch_array($query))
         {
@@ -343,7 +343,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $items[] = $row;
         }
 
-        // Do not build a sitemap here. Instead return the items.
+        // Do not build a sitemap here. Instead, return the items.
         // This way, items for all types can be collected for the main index page.
         return $items;
     }
@@ -423,6 +423,8 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
     }
 
     google_seo_sitemap("url", $items);
+
+    return [];
 }
 
 /**
@@ -434,11 +436,11 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
  * The resulting list of items is handed off to google_seo_sitemap()
  * to produce the XML Sitemap output.
  *
- * @param string XML Sitemap URL scheme
- * @param int Page number (page 1 == custom, static items)
- * @param int Number of items that should appear per page.
+ * @param string $scheme XML Sitemap URL scheme
+ * @param int $page Page number (page 1 == custom, static items)
+ * @param int $pagination Number of items that should appear per page.
  */
-function google_seo_sitemap_index($scheme, $page, $pagination)
+function google_seo_sitemap_index(string $scheme, int $page, int $pagination): void
 {
     global $settings;
 
@@ -477,7 +479,7 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
     if($settings['google_seo_sitemap_additional'])
     {
         $url = google_seo_expand($scheme, array('url' => 'index'));
-        $url .= (strpos($url, '?') === false ? '?' : '&amp;').'page=1';
+        $url .= (!str_contains($url, '?') ? '?' : '&amp;').'page=1';
         $items[] = array('loc' => $url);
     }
 
@@ -491,7 +493,7 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
  * XML Sitemap on the fly.
  *
  */
-function google_seo_sitemap_hook()
+function google_seo_sitemap_hook(): void
 {
     global $lang, $mybb, $settings;
 
@@ -547,12 +549,12 @@ function google_seo_sitemap_hook()
  * Extend WOL for users on the Sitemap page.
  *
  */
-function google_seo_sitemap_wol(&$plugin_array)
+function google_seo_sitemap_wol(array &$plugin_array): void
 {
     global $lang, $user, $settings;
 
     // Check if this user is on a sitemap page.
-    if(strstr($plugin_array['user_activity']['location'], "google_seo_sitemap"))
+    if(str_contains($plugin_array['user_activity']['location'], "google_seo_sitemap"))
     {
         $plugin_array['user_activity']['activity'] = 'google_seo_sitemap';
         $location = $plugin_array['user_activity']['location'];

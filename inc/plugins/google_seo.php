@@ -46,44 +46,44 @@ if(defined("IN_ADMINCP"))
      *
      * Please see google_seo/plugin.php for the real Plugin API.
      *
-     * Plugin API is huge (>25k) and it's only required on the Admin CP plugin page.
-     * Therefore it is loaded only on demand.
+     * Plugin API is huge (>25k), and it's only required on the Admin CP plugin page.
+     * Therefore, it is loaded only on demand.
      */
 
-    function google_seo_info()
+    function google_seo_info(): array
     {
         require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
         return google_seo_plugin_info();
     }
 
-    function google_seo_is_installed()
+    function google_seo_is_installed(): bool
     {
         require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
         return google_seo_plugin_is_installed();
     }
 
-    function google_seo_install()
+    function google_seo_install(): void
     {
         require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-        return google_seo_plugin_install();
+        google_seo_plugin_install();
     }
 
-    function google_seo_uninstall()
+    function google_seo_uninstall(): void
     {
         require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-        return google_seo_plugin_uninstall();
+        google_seo_plugin_uninstall();
     }
 
-    function google_seo_activate()
+    function google_seo_activate(): void
     {
         require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-        return google_seo_plugin_activate();
+        google_seo_plugin_activate();
     }
 
-    function google_seo_deactivate()
+    function google_seo_deactivate(): void
     {
         require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-        return google_seo_plugin_deactivate();
+        google_seo_plugin_deactivate();
     }
 
     /**
@@ -92,7 +92,7 @@ if(defined("IN_ADMINCP"))
 
     $plugins->add_hook("admin_config_settings_begin", "google_seo_lang_settings");
 
-    function google_seo_lang_settings()
+    function google_seo_lang_settings(): void
     {
         global $lang;
         $lang->load("googleseo_settings");
@@ -103,7 +103,7 @@ if(defined("IN_ADMINCP"))
      */
     $plugins->add_hook('admin_config_settings_change_commit', 'google_seo_fizzle');
 
-    function google_seo_fizzle()
+    function google_seo_fizzle(): void
     {
         global $mybb, $cache;
 
@@ -143,7 +143,7 @@ define('GOOGLE_SEO_EVENT', 5);
 define('GOOGLE_SEO_CALENDAR', 6);
 
 /*
- * Unfortunately global.php sets mb_internal_encoding only after running
+ * Unfortunately, global.php sets mb_internal_encoding only after running
  * the global_start hook (or maybe even not at all). We need it set it,
  * so we do it ourselves.
  */
@@ -162,7 +162,7 @@ global $plugins;
 
 $plugins->add_hook("global_start", "google_seo_lang");
 
-function google_seo_lang()
+function google_seo_lang(): void
 {
     global $lang;
     $lang->load("googleseo");
@@ -173,7 +173,7 @@ function google_seo_lang()
  * This function is required by several submodules.
  *
  */
-function google_seo_expand($string, $array)
+function google_seo_expand(string $string, array $array): string
 {
     $strtr = array();
 
@@ -190,7 +190,7 @@ function google_seo_expand($string, $array)
  * Guess or query a thread id from a post id.
  * Required by both URL and Redirect.
  */
-function google_seo_tid($pid, $tid=0, $mode='default', $limit=1)
+function google_seo_tid(?int $pid, int $tid=0, string $mode='default', int $limit=1): int
 {
     global $db, $style, $thread, $post;
     global $google_seo_tid, $google_seo_query_limit;
@@ -253,7 +253,7 @@ function google_seo_tid($pid, $tid=0, $mode='default', $limit=1)
  * Handle special dynamic URL parameter
  * Required by both URL and Redirect
  */
-function google_seo_dynamic($url)
+function google_seo_dynamic(string $url): string
 {
     // This is complicated because of ?page&page=2, page being the thread title.
 
@@ -276,7 +276,7 @@ function google_seo_dynamic($url)
         foreach($query as $key)
         {
             // pick the first parameter that doesn't have a value
-            if(strpos($key, '=') === false)
+            if(!str_contains($key, '='))
             {
                 return urldecode($key);
             }
@@ -290,11 +290,11 @@ function google_seo_dynamic($url)
  * Encode URLs, leaving some special characters intact.
  * Required by both URL and Redirect
  */
-function google_seo_encode($url)
+function google_seo_encode(string $url): string
 {
     $url = rawurlencode((string)$url);
 
-    $url = strtr($url, array(
+    return strtr($url, array(
                      '%24' => '$',
                      '%26' => '&',
                      '%2F' => '/',
@@ -306,8 +306,6 @@ function google_seo_encode($url)
                      '%7B' => '{',
                      '%7D' => '}',
                      ));
-
-    return $url;
 }
 
 /* --- Submodules: --- */

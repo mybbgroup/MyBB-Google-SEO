@@ -34,11 +34,11 @@ $plugins->add_hook("global_start", "google_seo_redirect_hook", 2);
 /* --- Redirect: --- */
 
 /**
- * Obtain the current URL.
+ * Get the current URL.
  *
- * @return current URL
+ * @return string current URL
  */
-function google_seo_redirect_current_url()
+function google_seo_redirect_current_url(): string
 {
     global $settings;
 
@@ -83,7 +83,7 @@ function google_seo_redirect_current_url()
  * Redirect if necessary.
  *
  */
-function google_seo_redirect_hook()
+function google_seo_redirect_hook(): void
 {
     global $db, $mybb, $settings, $plugins, $google_seo_redirect;
 
@@ -187,7 +187,7 @@ function google_seo_redirect_hook()
                     && $mybb->get_input('action') != 'profile'
                 )
                 {
-                    // Work around rewrite bug in LiteSpeed (double action conflict).
+                    // Work around the rewrite bug in LiteSpeed (double action conflict).
                     break;
                 }
 
@@ -212,7 +212,7 @@ function google_seo_redirect_hook()
                     && $mybb->get_input('action') != 'profile'
                 )
                 {
-                    // Work around rewrite bug in LiteSpeed (double action conflict).
+                    // Work around the rewrite bug in LiteSpeed (double action conflict).
                     break;
                 }
 
@@ -319,8 +319,8 @@ function google_seo_redirect_hook()
             }
 
             // Query
-            $current_dynamic = google_seo_dynamic('?' . (isset($current_parse[1]) ? $current_parse[1] : ''));
-            $target_dynamic = google_seo_dynamic('?' . (isset($target_parse[1]) ? $target_parse[1] : ''));
+            $current_dynamic = google_seo_dynamic('?' . ($current_parse[1] ?? ''));
+            $target_dynamic = google_seo_dynamic('?' . ($target_parse[1] ?? ''));
             parse_str(isset($target_parse[1]) ? htmlspecialchars_decode($target_parse[1]) : '', $query_target);
             parse_str($current_parse[1], $query_current);
 
@@ -490,7 +490,7 @@ function google_seo_redirect_hook()
     }
 }
 
-function google_seo_redirect_header()
+function google_seo_redirect_header(): void
 {
     global $plugins, $google_seo_redirect;
 
@@ -498,7 +498,7 @@ function google_seo_redirect_header()
     header("Location: {$google_seo_redirect}", true, 301);
 
     // Only exit if the headers haven't been sent yet.
-    // (i.e. if the headers will be sent on exit).
+    // (i.e. if the headers are sent on exit).
     if (!headers_sent())
     {
         // Hack to prevent any unnecessary queries.
@@ -515,7 +515,7 @@ function google_seo_redirect_header()
     google_seo_redirect_remove_hooks();
 }
 
-function google_seo_redirect_remove_hooks()
+function google_seo_redirect_remove_hooks(): void
 {
     global $plugins;
 

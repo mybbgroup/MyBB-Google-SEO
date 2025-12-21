@@ -189,10 +189,10 @@ google_seo_url_hook();
 /**
  * Character translation for URLs (optional).
  *
- * @param string The input string
+ * @param string $str The input string
  * @return string The output string
  */
-function google_seo_url_translation($str)
+function google_seo_url_translation(string $str): string
 {
     // Required for URL translation.
     global $settings;
@@ -233,10 +233,10 @@ function google_seo_url_translation($str)
 /**
  * Separate a string by punctuation for use in URLs.
  *
- * @param string The input string that may contain punctuation
+ * @param string $str The input string that may contain punctuation
  * @return string The string with punctuation replaced with separator
  */
-function google_seo_url_separate($str)
+function google_seo_url_separate(string $str): string
 {
     global $settings;
 
@@ -267,13 +267,10 @@ function google_seo_url_separate($str)
 /**
  * Truncate too long URLs.
  *
- * @param string The string to be truncated.
- * @param string The word separator.
- * @param int The soft limit.
- * @param int The hard limit.
+ * @param string $str The string to be truncated.
  * @return string truncated string
  */
-function google_seo_url_truncate($str)
+function google_seo_url_truncate(string $str): string
 {
     global $settings;
 
@@ -281,7 +278,7 @@ function google_seo_url_truncate($str)
     $soft = $settings['google_seo_url_length_soft'];
     $hard = $settings['google_seo_url_length_hard'];
 
-    // Cut off word past soft limit.
+    // Cut off word past the soft limit.
     if($soft && my_strlen($str) > $soft)
     {
         // Search the separator after the soft limit.
@@ -306,32 +303,30 @@ function google_seo_url_truncate($str)
 /**
  * Uniquify URLs.
  *
- * @param string The URL that collided with something
- * @param int The ID of this item
+ * @param string $url The URL that collided with something
+ * @param int $id The ID of this item
  * @return string The uniquified URL
  */
-function google_seo_url_uniquify($url, $id)
+function google_seo_url_uniquify(string $url, int $id): string
 {
     global $settings;
 
     $separator = $settings['google_seo_url_separator'];
     $str = $settings['google_seo_url_uniquifier'];
 
-    $str = google_seo_expand($str, array('url' => $url,
+    return google_seo_expand($str, array('url' => $url,
                                          'id' => $id,
                                          'separator' => $separator));
-
-    return $str;
 }
 
 /**
  * Finalize URLs. (Lowercase step done by the caller.)
  *
- * @param string URL to be finalized.
- * @param string Scheme to be used for this URL.
+ * @param string $url URL to be finalized.
+ * @param string $scheme Scheme to be used for this URL.
  * @return string Finalized URL.
  */
-function google_seo_url_finalize($url, $scheme)
+function google_seo_url_finalize(string $url, string $scheme): string|int
 {
     global $settings;
 
@@ -346,14 +341,14 @@ function google_seo_url_finalize($url, $scheme)
          * Maximum URL length hack.
          *
          * Most hosts do not allow for filenames > 255 bytes in URLs.
-         * Trying to access such an URL results in 403 Forbidden.
+         * Trying to access such a URL results in 403 Forbidden.
          *
-         * Since MyBB already limits length of user names and topic
-         * subjects this is normally not a problem. However it is still
+         * Since MyBB already limits the length of usernames and topic
+         * subjects, this is normally not a problem. However, it is still
          * possible to hit the limit with UTF-8 multibyte characters.
          *
          * This hack causes Google SEO to fall back to stock URLs in
-         * the rare case where the Google SEO URL would be unuseable.
+         * the rare case where the Google SEO URL would be unusable.
          *
          */
 
@@ -363,9 +358,7 @@ function google_seo_url_finalize($url, $scheme)
         }
     }
 
-    $url = google_seo_encode($url);
-
-    return $url;
+    return google_seo_encode($url);
 }
 
 /* --- URL Creation: --- */
@@ -377,10 +370,10 @@ function google_seo_url_finalize($url, $scheme)
  * then check for existing entries in the Google SEO database,
  * finally insert it into the database if it's not already there.
  *
- * @param string Type of the item (forums, threads, etc.)
- * @param array IDs of the item (fid for forums, tid for threads, etc.)
+ * @param int $type Type of the item (forums, threads, etc.)
+ * @param array $ids IDs of the item (fid for forums, tid for threads, etc.)
  */
-function google_seo_url_create($type, $ids)
+function google_seo_url_create(int $type, array $ids): void
 {
     global $db, $settings;
     global $google_seo_url_cache, $google_seo_query_limit, $google_seo_url;
@@ -402,7 +395,7 @@ function google_seo_url_create($type, $ids)
     // Is Google SEO URL enabled for this type?
     if($data['scheme'])
     {
-        // Query the item title as base for our URL.
+        // Query the item title as a base for our URL.
         $google_seo_query_limit--;
 
         if(!isset($data['extra']))
@@ -527,7 +520,7 @@ function google_seo_url_create($type, $ids)
                                   AND idtype={$type}
                                   AND id={$id}");
 
-                // Insert new entry (while possibly replacing old ones).
+                // Insert a new entry (while possibly replacing old ones).
                 $google_seo_query_limit--;
                 $db->write_query("REPLACE INTO ".TABLE_PREFIX."google_seo
                                   VALUES (active,idtype,id,url),
@@ -559,13 +552,13 @@ function google_seo_url_create($type, $ids)
  * the data by itself).
  *
  * The list of IDs obtained here is used later to fetch Google SEO URLs
- * in a single query, and create URLs for IDs that do not have an URL yet.
+ * in a single query and create URLs for IDs that do not have a URL yet.
  *
- * @param string Type of the item that caused the query.
- * @param int ID of the item that caused the query.
+ * @param int $type Type of the item that caused the query.
+ * @param int $id ID of the item that caused the query.
  * @return array IDs (ID as index, value 0) to be merged into the cache.
  */
-function google_seo_url_optimize($type, $id)
+function google_seo_url_optimize(int $type, int $id): array
 {
     global $db, $mybb, $settings, $cache;
     global $google_seo_url_optimize, $google_seo_url_cache, $google_seo_url;
@@ -634,9 +627,9 @@ function google_seo_url_optimize($type, $id)
                     $num_rows = $db->num_rows($query);
                 }
 
-                if($num_rows)
+                if(!empty($num_rows))
                 {
-                    // Loop from current pointer to end of query.
+                    // Loop from the current pointer to the end of a query.
                     $i = 0;
 
                     while($row = $db->fetch_array($query))
@@ -669,13 +662,13 @@ function google_seo_url_optimize($type, $id)
                         }
                     }
 
-                    // Determine original pointer position.
+                    // Determine the original pointer position.
                     $pointer = $num_rows - $i;
 
-                    // Seek to beginning of query.
+                    // Seek to the beginning of a query.
                     $db->data_seek($query, 0);
 
-                    // Loop from beginning until we reach the original position.
+                    // Loop from the beginning until we reach the original position.
                     $i = 0;
 
                     while($i < $pointer && $row = $db->fetch_array($query))
@@ -880,11 +873,11 @@ function google_seo_url_optimize($type, $id)
  * Get the entry for $type, $id from the cache.
  *
  * If $id is not yet in the cache, the $id will be queried from the DB.
- * To keep number of total DB queries low, all $ids that have been queued
+ * To keep the number of total DB queries low, all $ids that have been queued
  * up to here will be fetched in the same query as well.
  *
  */
-function google_seo_url_cache($type, $id)
+function google_seo_url_cache(int $type, int $id): string|int
 {
     global $db, $settings;
     global $google_seo_url_cache, $google_seo_url_lazy, $google_seo_query_limit, $google_seo_url;
@@ -904,7 +897,9 @@ function google_seo_url_cache($type, $id)
                 global $plugins;
                 $plugins->add_hook('pre_output_page', 'google_seo_url_lazy', 1000);
                 ob_start('google_seo_url_lazy');
-                register_shutdown_function(create_function('', 'while(@ob_end_flush());'));
+                register_shutdown_function(function (): void {
+                    while(@ob_end_flush());
+                });
                 $google_seo_url_lazy = array();
             }
 
@@ -915,7 +910,7 @@ function google_seo_url_cache($type, $id)
                 );
 
             // strtr is SO much faster if all strings have the exact same length
-            // 64 is the longest lazy url assuming 10 digit ids
+            // 64 is the longest lazy url assuming 10-digit ids
             $url = str_pad($url, 64, "+");
 
             $google_seo_url_cache[$type][$id] = $url;
@@ -966,8 +961,7 @@ function google_seo_url_cache($type, $id)
         {
             $rowid = (int)$row['id'];
             $rowtype = (int)$row['idtype'];
-            $google_seo_url_cache[$rowtype][$rowid] =
-                google_seo_url_finalize($row['url'],
+            $google_seo_url_cache[$rowtype][$rowid] = google_seo_url_finalize($row['url'],
                                         $google_seo_url[$rowtype]['scheme']);
             unset($ids[$rowtype][$rowid]);
         }
@@ -985,13 +979,13 @@ function google_seo_url_cache($type, $id)
     }
 
     // Return the cached entry for the originally requested type and id if we have it.
-    return isset($google_seo_url_cache[$type][$id]) ? $google_seo_url_cache[$type][$id] : 0;
+    return $google_seo_url_cache[$type][$id] ?? 0;
 }
 
 /*
  * Lazy Mode
  */
-function google_seo_url_lazy($message)
+function google_seo_url_lazy(string $message): string
 {
     global $plugins;
     global $google_seo_url_lazy, $google_seo_url_optimize, $google_seo_url_cache;
@@ -1002,19 +996,19 @@ function google_seo_url_lazy($message)
         return $message;
     }
 
-    $lazy = $google_seo_url_lazy;
+    $lazy = (array)$google_seo_url_lazy;
     $google_seo_url_lazy = false;
 
-    // We've been lazy and now we have to pay the price.
+    // We've been lazy, and now we have to pay the price.
 
     // Prepare cache and optimize.
     foreach($lazy as $key => $value)
     {
-        // substract lazy from cache so it will redo these URLs
+        // substract lazy from the cache so it will redo these URLs
         $google_seo_url_cache[$key] = array_diff_key((array)$google_seo_url_cache[$key],
-                                                     (array)$lazy[$key]);
+                                                     (array)$value);
         // add lazy to optimize so it will use a single query when redoing them
-        $google_seo_url_optimize[$key] = (array)$google_seo_url_optimize[$key] + (array)$lazy[$key];
+        $google_seo_url_optimize[$key] = (array)$google_seo_url_optimize[$key] + (array)$value;
     }
 
     // Make it load the URLs.
@@ -1042,15 +1036,13 @@ function google_seo_url_lazy($message)
     }
 
     // This is the most expensive bit.
-    $message = strtr($message, $strtr);
-
-    return $message;
+    return strtr($message, $strtr);
 }
 
 /*
  * Populate MyBB's Cache
  */
-function google_seo_url_cache_hook()
+function google_seo_url_cache_hook(): void
 {
     global $settings, $cache;
     global $google_seo_url_cache;
@@ -1083,11 +1075,11 @@ function google_seo_url_cache_hook()
 /**
  * Convert a given URL to ID.
  *
- * @param string Type of the item
- * @param string Given URL of the item
+ * @param int $type Type of the item
+ * @param string $url Given URL of the item
  * @return int ID of the requested item if found.
  */
-function google_seo_url_id($type, $url)
+function google_seo_url_id(int $type, string $url): int
 {
     global $db, $settings, $google_seo_query_limit;
 
@@ -1133,7 +1125,7 @@ function google_seo_url_id($type, $url)
  * Dynamic URLs, e.g. showthread.php?Subject-Here
  *
  */
-function google_seo_url_dynamic($url='')
+function google_seo_url_dynamic(string $url=''): string
 {
     if(!strlen((string)$url))
     {
@@ -1153,7 +1145,7 @@ function google_seo_url_dynamic($url='')
  * This is also the point where Google SEO updates the URLs in case
  * the requested item changed its name since the last update.
  */
-function google_seo_url_hook()
+function google_seo_url_hook(): void
 {
     global $db, $mybb, $settings;
 
@@ -1282,9 +1274,9 @@ function google_seo_url_hook()
                 {
                     $cid = google_seo_url_id(GOOGLE_SEO_CALENDAR, $url);
 
-                    // Hack to cause invalid calendar message to appear:
+                    // Hack to cause an invalid calendar message to appear:
                     // If cid is not set, the default calendar would be shown.
-                    // However in this case it means an invalid URL was given.
+                    // However, in this case it means an invalid URL was given.
                     if(!$cid)
                     {
                         $cid = -1;
@@ -1320,10 +1312,10 @@ function google_seo_url_hook()
 /**
  * Google SEO Merge hook.
  *
- * Unfortunately MyBB asks for a thread URL when merging threads.
+ * Unfortunately, MyBB asks for a thread URL when merging threads.
  * We have to translate Google SEO URLs back to showthread.php?tid=x URLs.
  */
-function google_seo_url_merge_hook()
+function google_seo_url_merge_hook(): void
 {
     global $mybb;
 
@@ -1357,7 +1349,7 @@ function google_seo_url_merge_hook()
     // Look up the ID for this item.
     $tid = google_seo_url_id(GOOGLE_SEO_THREAD, $url);
 
-    // If we have an ID, produce an URL suitable for merge.
+    // If we have an ID, produce a URL suitable for merge.
     if($tid)
     {
         $mybb->input['threadurl'] = "{$mybb->settings['bburl']}/showthread.php?tid={$tid}";
@@ -1371,11 +1363,11 @@ function google_seo_url_merge_hook()
  * When two threads are merged, one of them is actually deleted.
  * As a result, all URLs pointing to the old thread would be lost.
  *
- * However if we merge the URL entries in the google_seo table as well,
+ * However, if we merge the URL entries in the google_seo table as well,
  * Google SEO Redirect can redirect URLs of the old thread to the new thread.
  *
  */
-function google_seo_url_after_merge_hook($arguments)
+function google_seo_url_after_merge_hook(array $arguments): void
 {
     global $db, $google_seo_query_limit;
 
@@ -1395,10 +1387,10 @@ function google_seo_url_after_merge_hook($arguments)
 /**
  * Replacement for get_profile_link()
  *
- * @param int ID of the linked user profile.
- * @return string User profile URL.
+ * @param int $uid ID of the linked user profile.
+ * @return string|int User profile URL.
  */
-function google_seo_url_profile($uid=0)
+function google_seo_url_profile(int $uid=0): string|int
 {
     global $settings;
 
@@ -1406,15 +1398,17 @@ function google_seo_url_profile($uid=0)
     {
         return google_seo_url_cache(GOOGLE_SEO_USER, $uid);
     }
+
+    return '';
 }
 
 /**
  * Replacement for get_announcement_link()
  *
- * @param int ID of the linked announcement.
- * @return string Announcement URL.
+ * @param int $aid ID of the linked announcement.
+ * @return string|int Announcement URL.
  */
-function google_seo_url_announcement($aid=0)
+function google_seo_url_announcement(int $aid=0): string|int
 {
     global $settings;
 
@@ -1422,17 +1416,19 @@ function google_seo_url_announcement($aid=0)
     {
         return google_seo_url_cache(GOOGLE_SEO_ANNOUNCEMENT, $aid);
     }
+
+    return '';
 }
 
 
 /**
  * Replacement for get_forum_link()
  *
- * @param int ID of the linked forum.
- * @param int Optional page number.
- * @return string Forum URL.
+ * @param int $fid ID of the linked forum.
+ * @param int $page Optional page number.
+ * @return string|int Forum URL.
  */
-function google_seo_url_forum($fid, $page=0)
+function google_seo_url_forum(int $fid, int $page=0): string|int
 {
     global $settings;
 
@@ -1447,23 +1443,25 @@ function google_seo_url_forum($fid, $page=0)
             {
                 $url = ""; // only works for ?page due to href=""
             }
-            $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+            $glue = (!str_contains($url, '?') ? '?' : '&amp;');
             $url .= "{$glue}page={$page}";
         }
 
         return $url;
     }
+
+    return '';
 }
 
 /**
  * Replacement for get_thread_link()
  *
- * @param int ID of the linked thread.
- * @param int Optional page number.
- * @param string Optional action.
- * @return string Thread URL.
+ * @param int $tid ID of the linked thread.
+ * @param int $page Optional page number.
+ * @param string $action Optional action.
+ * @return string|int Thread URL.
  */
-function google_seo_url_thread($tid, $page=0, $action='')
+function google_seo_url_thread(int $tid, int $page=0, string $action=''): string|int
 {
     global $settings;
 
@@ -1473,7 +1471,7 @@ function google_seo_url_thread($tid, $page=0, $action='')
 
         if($url)
         {
-            $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+            $glue = (!str_contains($url, '?') ? '?' : '&amp;');
 
             if($page && $page != 1 && $action)
             {
@@ -1493,16 +1491,18 @@ function google_seo_url_thread($tid, $page=0, $action='')
             return $url;
         }
     }
+
+    return '';
 }
 
 /**
  * Replacement for get_post_link()
  *
- * @param int ID of the linked posting.
- * @param int Optional thread ID if known (has to be looked up otherwise).
- * @return string Post URL.
+ * @param int $pid ID of the linked posting.
+ * @param int $tid Optional thread ID if known (has to be looked up otherwise).
+ * @return string|int Post URL.
  */
-function google_seo_url_post($pid, $tid=0)
+function google_seo_url_post(int $pid, int $tid=0): string|int
 {
     global $db, $settings;
     global $google_seo_url_tid, $google_seo_query_limit;
@@ -1518,21 +1518,23 @@ function google_seo_url_post($pid, $tid=0)
 
             if($url)
             {
-                $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+                $glue = (!str_contains($url, '?') ? '?' : '&amp;');
                 $url .= "{$glue}pid={$pid}";
                 return $url;
             }
         }
     }
+
+    return '';
 }
 
 /**
  * Replacement for get_event_link()
  *
- * @param int ID of the linked event.
- * @return string Event URL.
+ * @param int $eid ID of the linked event.
+ * @return string|int|bool Event URL.
  */
-function google_seo_url_event($eid)
+function google_seo_url_event(int $eid): string|int|bool
 {
     global $settings;
 
@@ -1540,18 +1542,20 @@ function google_seo_url_event($eid)
     {
         return google_seo_url_cache(GOOGLE_SEO_EVENT, $eid);
     }
+
+    return false;
 }
 
 /**
  * Replacement for get_calendar_link()
  *
- * @param int ID of the linked calendar.
- * @param int Optional year.
- * @param int Optional month.
- * @param int Optional day.
- * @return string Calendar URL.
+ * @param int $cid ID of the linked calendar.
+ * @param int $year Optional year.
+ * @param int $month Optional month.
+ * @param int $day Optional day.
+ * @return string|int Calendar URL.
  */
-function google_seo_url_calendar($cid, $year=0, $month=0, $day=0)
+function google_seo_url_calendar(int $cid, int $year=0, int $month=0, int $day=0): string|int
 {
     global $settings;
 
@@ -1561,7 +1565,7 @@ function google_seo_url_calendar($cid, $year=0, $month=0, $day=0)
 
         if($url && $year)
         {
-            $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+            $glue = (!str_contains($url, '?') ? '?' : '&amp;');
             $url .= "{$glue}year={$year}";
 
             if($month)
@@ -1577,16 +1581,18 @@ function google_seo_url_calendar($cid, $year=0, $month=0, $day=0)
 
         return $url;
     }
+
+    return '';
 }
 
 /**
  * Replacement for get_calendar_week_link()
  *
- * @param int ID of the linked calendar.
- * @param int Week.
- * @return string Calendar Week URL.
+ * @param int $cid ID of the linked calendar.
+ * @param int $week Week.
+ * @return string|int Calendar Week URL.
  */
-function google_seo_url_calendar_week($cid, $week)
+function google_seo_url_calendar_week(int $cid, int $week): string|int
 {
     global $settings;
 
@@ -1596,26 +1602,28 @@ function google_seo_url_calendar_week($cid, $week)
 
         if($url)
         {
-            $week = str_replace('-', 'n', $week);
-            $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+            $week = str_replace('-', 'n', (string)$week);
+            $glue = (!str_contains($url, '?') ? '?' : '&amp;');
             $url .= "{$glue}action=weekview&amp;week={$week}";
             return $url;
         }
     }
+
+    return '';
 }
 
 /**
  * Replacement for multipage links
  *
- * @param string base URL of the multipage
+ * @param string $url base URL of the multipage
  * @return string new base URL of the multipage
  */
-function google_seo_url_multipage($url)
+function google_seo_url_multipage(string $url): string
 {
     switch(THIS_SCRIPT)
     {
         case 'forumdisplay.php':
-            // Initialize variables for forumdisplay.
+            // Initialize variables for the forumdisplay.
             global $fid;
             $id = $fid;
             $urlcheck = FORUM_URL_PAGED;
@@ -1624,7 +1632,7 @@ function google_seo_url_multipage($url)
             break;
 
         case 'showthread.php':
-            // Initialize variables for showthread.
+            // Initialize variables for the showthread.
             global $tid;
             $id = $tid;
             $urlcheck = THREAD_URL_PAGED;
@@ -1646,8 +1654,8 @@ function google_seo_url_multipage($url)
 
         // see if we have a default multipage URL here
         if($url == $urlcheck
-           || strpos($url, $urlcheck.'?') === 0
-           || strpos($url, $urlcheck.'&amp;') === 0)
+           || str_starts_with($url, $urlcheck . '?')
+           || str_starts_with($url, $urlcheck . '&amp;'))
         {
             // Check that the Google SEO URLs are being used.
             $seourl = $getlink_googleseo($id, "{page}");

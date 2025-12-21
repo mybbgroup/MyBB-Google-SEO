@@ -39,7 +39,7 @@ if(THIS_SCRIPT == "misc.php"
 {
     if($mybb->settings['google_seo_404_wol_show'])
     {
-        // Set the 404 error location
+        // Set the 404 error locations
         $location = 'misc.php?google_seo_error=404';
 
         if($mybb->settings['google_seo_404_wol_show'] == 2)
@@ -62,7 +62,7 @@ if(THIS_SCRIPT == "misc.php"
 
 /* --- Hooks: --- */
 
-// Set HTTP 404 status code, add widget to error pages:
+// Set HTTP 404 status code, add a widget to error pages:
 $plugins->add_hook("error", "google_seo_404");
 $plugins->add_hook("no_permission", "google_seo_404_no_permission");
 
@@ -77,7 +77,7 @@ $plugins->add_hook("build_friendly_wol_location_end", "google_seo_404_wol");
 /**
  * Sort function: longest strings first, patterns last
  */
-function google_seo_404_status_cmp($a, $b)
+function google_seo_404_status_cmp(string $a, string $b): int
 {
     return strlen($b) - strlen($a);
 }
@@ -85,7 +85,7 @@ function google_seo_404_status_cmp($a, $b)
 /**
  * Parse the 404 status setting
  */
-function google_seo_404_status($label)
+function google_seo_404_status(string $label): string|bool
 {
     global $settings;
 
@@ -104,7 +104,7 @@ function google_seo_404_status($label)
                 $status = trim($fields[0]);
                 $values = explode(",", $fields[1]);
 
-                if(strpos($status, (int)$status.' ') === 0)
+                if(str_starts_with($status, (int)$status . ' '))
                 {
                     foreach($values as $value)
                     {
@@ -115,7 +115,7 @@ function google_seo_404_status($label)
                             return $status;
                         }
 
-                        else if(strpos($value, '*') !== false)
+                        else if(str_contains($value, '*'))
                         {
                             $patterns[$value] = $status;
                         }
@@ -139,6 +139,8 @@ function google_seo_404_status($label)
             return $status;
         }
     }
+
+    return false;
 }
 
 /* --- 404 error handling: --- */
@@ -146,9 +148,9 @@ function google_seo_404_status($label)
 /**
  * Set the 404 header, add Google 404 widget, if enabled.
  *
- * @param string Error message, which may be modified.
+ * @param string $error Error message, which may be modified.
  */
-function google_seo_404(&$error)
+function google_seo_404(string &$error): void
 {
     global $mybb, $lang, $settings;
     global $google_seo_404_label;
@@ -169,7 +171,7 @@ function google_seo_404(&$error)
         $label = $keys[0];
 
         // Most labels start with error_, shorten it.
-        if(strpos($label, "error_") === 0)
+        if(str_starts_with($label, "error_"))
         {
             $label = substr($label, 6);
         }
@@ -205,7 +207,7 @@ function google_seo_404(&$error)
     }
 }
 
-function google_seo_404_no_permission()
+function google_seo_404_no_permission(): void
 {
     global $google_seo_404_label;
     $google_seo_404_label = "no_permission";
@@ -214,10 +216,10 @@ function google_seo_404_no_permission()
 /* ---  Custom 404 error page --- */
 
 /**
- * Create a custom 404 error page for errors that occur outside of MyBB.
+ * Create a custom 404 error page for errors that occur outside MyBB.
  *
  */
-function google_seo_404_page()
+function google_seo_404_page(): void
 {
     global $mybb, $lang;
 
@@ -233,12 +235,12 @@ function google_seo_404_page()
  * Extend WOL for users on the 404 page.
  *
  */
-function google_seo_404_wol(&$p)
+function google_seo_404_wol(array &$p): void
 {
     global $lang, $user, $settings;
 
     // Check if this user is on a 404 page.
-    if(strpos($p['user_activity']['location'], "misc.php?google_seo_error=404") === 0)
+    if(str_starts_with($p['user_activity']['location'], "misc.php?google_seo_error=404"))
     {
         $p['user_activity']['activity'] = 'google_seo_404';
         $location = $p['user_activity']['location'];

@@ -38,9 +38,9 @@ $lang->load("googleseo_plugin");
 /**
  * Basic information about the plugin.
  *
- * @return Plugin info array.
+ * @return array Plugin info array.
  */
-function google_seo_plugin_info()
+function google_seo_plugin_info(): array
 {
     global $lang, $settings, $plugins_cache;
 
@@ -59,7 +59,7 @@ function google_seo_plugin_info()
         "codename"      => "google_seo_php_eight_update",
     );
 
-    // Provide some additional status information, if the plugin is enabled.
+    // Provide some additional status information if the plugin is enabled.
     if(google_seo_plugin_is_installed() &&
        is_array($plugins_cache) &&
        is_array($plugins_cache['active']) &&
@@ -76,7 +76,7 @@ function google_seo_plugin_info()
  *
  * @return string status string
  */
-function google_seo_plugin_status()
+function google_seo_plugin_status(): string
 {
     global $lang, $mybb, $config, $settings, $db;
     global $PL;
@@ -153,7 +153,7 @@ function google_seo_plugin_status()
 
         $admin_dir = !empty($config['admin_dir']) ?  '/'. $config['admin_dir'] : '';
 
-        $pos = my_strpos($current_url, "{$admin_dir}/index.php");
+        $pos = strpos($current_url, "{$admin_dir}/index.php");
 
         if($pos)
         {
@@ -354,7 +354,7 @@ function google_seo_plugin_status()
         {
             $file = preg_replace('/^[\s\t]*#.*$/m', '', $file);
             $file = preg_replace("/\s*\n\s*/m", "\n", $file);
-            $file .= "\n"; // no newline at end of file
+            $file .= "\n"; // no newline at the end of a file
         }
 
         foreach($htaccess as $v)
@@ -370,7 +370,7 @@ function google_seo_plugin_status()
                     $rule = preg_quote($rule);
                     $rule = preg_replace('/\\\\{(\\\\\\$|)url\\\\}/', '{url}', $rule);
 
-                    if(strpos($rule, '{url}') !== false)
+                    if(str_contains($rule, '{url}'))
                     {
                         $url = "([^./]+)";
                         $rule = google_seo_expand($rule, array('url' => $url));
@@ -388,7 +388,7 @@ function google_seo_plugin_status()
                         $rule = "RewriteRule ^{$rule}\$ {$v[1]}?".(isset($v[4]) ? $v[4] : '')." [L,QSA,NC]";
                     }
 
-                    if(strpos($file, "{$rule}\n") === false)
+                    if(!str_contains($file, "{$rule}\n"))
                     {
                         $line = "# {$v[3]}:\n{$rule}\n";
                     }
@@ -397,7 +397,7 @@ function google_seo_plugin_status()
 
             else
             {
-                if(strpos($file, "{$v[0]}\n") === false)
+                if(!str_contains($file, "{$v[0]}\n"))
                 {
                     $line = "# {$v[2]}:\n{$v[0]}\n";
                 }
@@ -426,7 +426,7 @@ function google_seo_plugin_status()
             array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_rewritebase}\nRewriteBase {$base}/\n");
         }
 
-        if(isset($rewrite) && strpos($file, "RewriteEngine on\n") === false)
+        if(isset($rewrite) && !str_contains($file, "RewriteEngine on\n"))
         {
             array_unshift($lines, "RewriteEngine on\n");
         }
@@ -576,7 +576,7 @@ function google_seo_plugin_status()
     // URL Database info:
     if(isset($urldb))
     {
-        $status .= google_seo_plugin_database($urldb);
+        google_seo_plugin_database($urldb);
     }
 
     return $status;
@@ -587,7 +587,7 @@ function google_seo_plugin_status()
 /**
  * Check that dependencies are installed.
  */
-function google_seo_plugin_dependency()
+function google_seo_plugin_dependency(): void
 {
     global $mybb, $lang;
 
@@ -614,20 +614,20 @@ function google_seo_plugin_dependency()
 }
 
 /**
- * Make a human readable list out of a string array.
+ * Make a human-readable list out of a string array.
  * Used by plugin status.
  *
- * @param array List of strings
- * @return string Human readable list
+ * @param array $strarr List of strings
+ * @return string Human-readable list
  */
-function google_seo_plugin_list($strarr)
+function google_seo_plugin_list(array $strarr): string
 {
     global $lang;
 
     // Don't do anything if it's empty.
     if(!count($strarr))
     {
-        return;
+        return '';
     }
 
     // y
@@ -653,9 +653,9 @@ function google_seo_plugin_list($strarr)
 /**
  * Checks if the module is already installed.
  *
- * @return True if the plugin is installed, else false.
+ * @return bool True if the plugin is installed, else false.
  */
-function google_seo_plugin_is_installed()
+function google_seo_plugin_is_installed(): bool
 {
     global $db;
 
@@ -665,7 +665,7 @@ function google_seo_plugin_is_installed()
 /**
  * Installs the plugin.
  */
-function google_seo_plugin_install()
+function google_seo_plugin_install(): void
 {
     google_seo_plugin_dependency();
 
@@ -690,7 +690,7 @@ function google_seo_plugin_install()
 /**
  * Uninstalls the plugin.
  */
-function google_seo_plugin_uninstall()
+function google_seo_plugin_uninstall(): void
 {
     google_seo_plugin_dependency();
 
@@ -737,7 +737,7 @@ function google_seo_plugin_uninstall()
  * Activate the plugin
  */
 
-function google_seo_plugin_activate()
+function google_seo_plugin_activate(): void
 {
     google_seo_plugin_dependency();
 
@@ -775,7 +775,7 @@ function google_seo_plugin_activate()
                 'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in the Google SEO URL settings group.",
                 ),
             ),
-        false // true to generate language file
+        false // true to generate a language file
         );
 
     /* Settings for Google SEO 404 */
@@ -805,7 +805,7 @@ function google_seo_plugin_activate()
                 'description' => "Setting this to Yes will show an error label on error pages. The labels can then be used to configure custom error codes for that page.",
                 ),
             ),
-        false // true to generate language file
+        false // true to generate a language file
         );
 
     /* Settings for Google SEO Meta */
@@ -849,7 +849,7 @@ function google_seo_plugin_activate()
                 'value' => '',
                 ),
             ),
-        false // true to generate language file
+        false // true to generate a language file
         );
 
     /* Settings for Google SEO Redirect */
@@ -883,7 +883,7 @@ function google_seo_plugin_activate()
                 'description' => "If you experience infinite redirection loops due to Google SEO Redirect, please enable this option to obtain more information about what is going wrong with your redirect and then report a bug to the plugin author. The debug information is ugly and therefore shown only to board admins.",
                 ),
             ),
-        false // true to generate language file
+        false // true to generate a language file
         );
 
     /* Settings for Google SEO Sitemap */
@@ -943,7 +943,7 @@ function google_seo_plugin_activate()
                 'value' => "1000",
                 ),
             ),
-        false // true to generate language file
+        false // true to generate a language file
         );
 
     /* Settings for Google SEO URLs */
@@ -1091,7 +1091,7 @@ function google_seo_plugin_activate()
                 'value' => '',
                 ),
             ),
-        false // true to generate language file
+        false // true to generate a language file
         );
 
     $PL->settings(
@@ -1106,7 +1106,7 @@ function google_seo_plugin_activate()
                 'value' => '0',
                 ),
             ),
-        false // true to generate language file
+        false // true to generate a language file
         );
 }
 
@@ -1114,7 +1114,7 @@ function google_seo_plugin_activate()
  * Deactivates the plugin.
  */
 // This function runs when the plugin is deactivated.
-function google_seo_plugin_deactivate()
+function google_seo_plugin_deactivate(): void
 {
     // Keep settings and database in case Google SEO gets activated again.
     // Use uninstall if you want to get rid of Google SEO completely.
@@ -1126,7 +1126,7 @@ function google_seo_plugin_deactivate()
  * Check for edit action
  *
  */
-function google_seo_plugin_edit()
+function google_seo_plugin_edit(): void
 {
     global $mybb, $lang;
 
@@ -1169,7 +1169,7 @@ function google_seo_plugin_edit()
  * Apply changes to MyBB core files using PluginLibrary::edit_core().
  *
  */
-function google_seo_plugin_apply($apply=false)
+function google_seo_plugin_apply(bool $apply=false): bool|string
 {
     global $settings;
     global $PL;
@@ -1377,7 +1377,7 @@ function google_seo_plugin_apply($apply=false)
  * Revert changes to MyBB core files using PluginLibrary::edit_core().
  *
  */
-function google_seo_plugin_revert($apply=false)
+function google_seo_plugin_revert(bool $apply=false): bool|string
 {
     global $PL;
     $PL or require_once PLUGINLIBRARY;
@@ -1391,7 +1391,7 @@ function google_seo_plugin_revert($apply=false)
  *  Show database controls.
  *
  */
-function google_seo_plugin_database()
+function google_seo_plugin_database(): void
 {
     global $mybb, $db, $lang, $cache;
     global $PL;
@@ -1400,7 +1400,7 @@ function google_seo_plugin_database()
     if($mybb->get_input('google_seo') !== 'database'
        || !verify_post_check($mybb->get_input('my_post_key')))
     {
-        return '';
+        return;
     }
 
     // Query Puzzle Pieces.
