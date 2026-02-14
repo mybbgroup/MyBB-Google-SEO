@@ -98,7 +98,7 @@ function google_seo_sitemap(string $tag, array $items): void
         //       takes care of cid showing up as date.
         if(isset($item['lastmod']) && $item['lastmod'] > 10000000)
         {
-            $lastmod = gmdate('Y-m-d\TH:i\Z', $item['lastmod']);
+            $lastmod = gmdate('Y-m-d\TH:i\Z', (int)$item['lastmod']);
             $output[] = "    <lastmod>$lastmod</lastmod>";
         }
 
@@ -361,7 +361,7 @@ function google_seo_sitemap_gen(string $scheme, string $type, int $page, int $pa
     while($row = $db->fetch_array($query))
     {
         $id = $row[$idname];
-        $ids[] = $id;
+        $ids[] = (int)$id;
         $dates[$id] = $row[$datename];
 
         if(!empty($pagescount))
