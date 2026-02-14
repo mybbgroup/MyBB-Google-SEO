@@ -371,9 +371,9 @@ function google_seo_url_finalize(string $url, string $scheme): string|int
  * finally insert it into the database if it's not already there.
  *
  * @param int $type Type of the item (forums, threads, etc.)
- * @param array $ids IDs of the item (fid for forums, tid for threads, etc.)
+ * @param array|int $ids IDs of the item (fid for forums, tid for threads, etc.)
  */
-function google_seo_url_create(int $type, array $ids): void
+function google_seo_url_create(int $type, array|int $ids): void
 {
     global $db, $settings;
     global $google_seo_url_cache, $google_seo_query_limit, $google_seo_url;
@@ -1457,11 +1457,11 @@ function google_seo_url_forum(int $fid, int $page=0): string|int
  * Replacement for get_thread_link()
  *
  * @param int $tid ID of the linked thread.
- * @param int $page Optional page number.
+ * @param int|string $page Optional page number.
  * @param string $action Optional action.
  * @return string|int Thread URL.
  */
-function google_seo_url_thread(int $tid, int $page=0, string $action=''): string|int
+function google_seo_url_thread(int $tid, int|string $page=0, string $action=''): string|int
 {
     global $settings;
 
@@ -1473,12 +1473,12 @@ function google_seo_url_thread(int $tid, int $page=0, string $action=''): string
         {
             $glue = (!str_contains($url, '?') ? '?' : '&amp;');
 
-            if($page && $page != 1 && $action)
+            if($page && $page !== 1 && $action)
             {
                 $url .= "{$glue}page={$page}&amp;action={$action}";
             }
 
-            else if($page && $page != 1)
+            else if($page && $page !== 1)
             {
                 $url .= "{$glue}page={$page}";
             }
