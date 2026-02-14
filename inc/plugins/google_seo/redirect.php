@@ -520,15 +520,15 @@ function google_seo_redirect_remove_hooks(): void
     global $plugins;
 
     // Remove hooks to prevent getting called again.
-    $plugins->remove_hook("forumdisplay_end", "google_seo_redirect_header", "", 2);
-    $plugins->remove_hook("postbit", "google_seo_redirect_header", "", 2);
-    $plugins->remove_hook("postbit_announcement", "google_seo_redirect_header", "", 2);
-    $plugins->remove_hook("calendar_editevent_end", "google_seo_redirect_header", "", 2);
-    $plugins->remove_hook("calendar_event_end", "google_seo_redirect_header", "", 2);
-    $plugins->remove_hook("calendar_end", "google_seo_redirect_header", "", 2);
-    $plugins->remove_hook("pre_output_page", "google_seo_redirect_header", "", 2);
-    $plugins->remove_hook("error", "google_seo_redirect_remove", "", 2);
-    $plugins->remove_hook("no_permission", "google_seo_redirect_remove", "", 2);
+    $plugins->remove_hook("forumdisplay_end", "google_seo_redirect_header", 2);
+    $plugins->remove_hook("postbit", "google_seo_redirect_header", 2);
+    $plugins->remove_hook("postbit_announcement", "google_seo_redirect_header", 2);
+    $plugins->remove_hook("calendar_editevent_end", "google_seo_redirect_header", 2);
+    $plugins->remove_hook("calendar_event_end", "google_seo_redirect_header", 2);
+    $plugins->remove_hook("calendar_end", "google_seo_redirect_header", 2);
+    $plugins->remove_hook("pre_output_page", "google_seo_redirect_header", 2);
+    $plugins->remove_hook("error", "google_seo_redirect_remove",  2);
+    $plugins->remove_hook("no_permission", "google_seo_redirect_remove",  2);
 }
 
 /* --- End of file. --- */
