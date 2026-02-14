@@ -434,7 +434,7 @@ function google_seo_url_create(int $type, array $ids): void
                 }
             }
 
-            $id = $row[$data['id']];
+            $id = (int)$row[$data['id']];
 
             // Prepare the URL.
             if($settings['google_seo_url_translation'])
@@ -1089,7 +1089,7 @@ function google_seo_url_id(int $type, string $url): int
                          WHERE idtype={$type}
                          AND url='".$db->escape_string($url)."'");
 
-    $id = $db->fetch_field($query, "id");
+    $id = (int)$db->fetch_field($query, "id");
 
     if(!$id)
     {
@@ -1110,7 +1110,7 @@ function google_seo_url_id(int $type, string $url): int
                              ORDER BY id ASC
                              LIMIT 1");
 
-        $id = $db->fetch_field($query, "id");
+        $id = (int)$db->fetch_field($query, "id");
     }
 
     if($id)
@@ -1436,7 +1436,7 @@ function google_seo_url_forum(int $fid, int $page=0): string|int
     {
         $url = google_seo_url_cache(GOOGLE_SEO_FORUM, $fid);
 
-        if($url && $page && $page != 1)
+        if($url && $page && $page !== 1)
         {
             // forum as index tweak
             if($fid == $settings['google_seo_tweak_index_fid'])
@@ -1625,7 +1625,7 @@ function google_seo_url_multipage(string $url): string
         case 'forumdisplay.php':
             // Initialize variables for the forumdisplay.
             global $fid;
-            $id = $fid;
+            $id = (int)$fid;
             $urlcheck = FORUM_URL_PAGED;
             $idname = "fid";
             $type = "forum";
@@ -1634,7 +1634,7 @@ function google_seo_url_multipage(string $url): string
         case 'showthread.php':
             // Initialize variables for the showthread.
             global $tid;
-            $id = $tid;
+            $id = (int)$tid;
             $urlcheck = THREAD_URL_PAGED;
             $idname = "tid";
             $type = "thread";
@@ -1650,7 +1650,7 @@ function google_seo_url_multipage(string $url): string
         $getlink_googleseo = "google_seo_url_{$type}";
 
         // replace {idname} with the id to get the default URL
-        $urlcheck = str_replace("{{$idname}}", $id, $urlcheck);
+        $urlcheck = str_replace("{{$idname}}", (string)$id, $urlcheck);
 
         // see if we have a default multipage URL here
         if($url == $urlcheck

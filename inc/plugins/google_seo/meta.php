@@ -229,12 +229,12 @@ function google_seo_meta_thread(array &$post): void
     {
         if($page > 1)
         {
-            google_seo_meta_canonical(get_thread_link($tid, $page));
+            google_seo_meta_canonical(get_thread_link((int)$tid, $page));
         }
 
         else
         {
-            google_seo_meta_canonical(get_thread_link($tid));
+            google_seo_meta_canonical(get_thread_link((int)$tid));
         }
     }
 
@@ -248,7 +248,7 @@ function google_seo_meta_thread(array &$post): void
     google_seo_meta_page((int)$page);
 
     // Noindex:
-    google_seo_meta_noindex($post['fid']);
+    google_seo_meta_noindex((int)$post['fid']);
 
     // Nofollow:
     if($google_seo_nofollow && $thread['lastpost'] > $google_seo_nofollow)
@@ -285,9 +285,9 @@ function google_seo_meta_posts(array &$mypost): void
         {
                 $mypost['button_www'] = '';
         }
-        $mypost['message'] = google_seo_meta_nofollow($mypost['message']);
-        $mypost['button_www'] = google_seo_meta_nofollow($mypost['button_www']);
-        $mypost['signature'] = google_seo_meta_nofollow($mypost['signature']);
+        $mypost['message'] = google_seo_meta_nofollow($mypost['message'] ?? '');
+        $mypost['button_www'] = google_seo_meta_nofollow($mypost['button_www'] ?? '');
+        $mypost['signature'] = google_seo_meta_nofollow($mypost['signature'] ?? '');
     }
 }
 
